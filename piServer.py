@@ -23,24 +23,25 @@ if(args.PORT != None):
 print("Starting Server [HOST="+HOST+"] [PORT="+str(PORT)+"]")
 
 ''' GPIO SETUP '''
-pinM1Speed = 12
-pinM2Speed = 13
-pinM1Direction = 11
-pinM2Direction = 13
+GPIO.setmode(GPIO.BCM)
 
+pinM1Speed = 18
+pinM2Speed = 23
+pinM1Direction = 24
+pinM2Direction = 25
 
-GPIO.setmode(GPIO.BOARD)
 GPIO.setup(pinM1Speed, GPIO.OUT)  # Motor 1 PWM
 GPIO.setup(pinM2Speed, GPIO.OUT)  # Motor 2 PWM
-
 GPIO.setup(pinM1Direction, GPIO.OUT)  # Motor 1 Direction
+GPIO.setup(pinM2Direction, GPIO.OUT)  # Motor 2 Direction
+
 
 # Set up and start our GPIO PWM pin (motor 1)
-gpioM1 = GPIO.PWM(pinM1Speed, 50)  # channel=12 frequency=50Hz
+gpioM1 = GPIO.PWM(pinM1Speed, 50)
 gpioM1.start(0)
 
 # Set up and start our GPIO PWM pin (motor 2)
-gpioM2 = GPIO.PWM(pinM2Speed, 50)  # channel=12 frequency=50Hz
+gpioM2 = GPIO.PWM(pinM2Speed, 50)
 gpioM2.start(0)
 
 #serWrite = piSerialHelper.piSerial(DEVICE, BAUD, True)
@@ -69,14 +70,18 @@ while 1:
             data = data.split(',')
             speedM1 = data[0]
             speedM2 = data[1]
-            directionM1 = data[2]
-            directionM2 = data[3]
+            directionM1 = int(data[2])
+            directionM2 = int(data[3])
 
             # Update motor 1's speed
             gpioM1.ChangeDutyCycle(float(speedM1))
 
             # Update motor 2's speed
             gpioM2.ChangeDutyCycle(float(speedM2))
+
+            # Set Motor directions
+            GPIO.output(pinM1Direction, directionM1)
+            GPIO.output(pinM2Direction, directionM2)
         except Exception, msg:
             print("Error receiving data from client:" + str(msg[0]))
 
